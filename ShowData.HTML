@@ -1,0 +1,74 @@
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        function getData(){
+            fetch("https://www.cc.puv.fi/~e2402105/record.txt")
+            .then(r => r.text()).then(data => parseAndGraph(data));
+        }
+
+        function parseAndGraph(d){
+            let lines = d.trim().split("\n");
+
+            let labels = [];
+            let num1 = [];
+            let num2 = [];
+            let DateOld = "";
+            lines.forEach(line => {
+                let parts = line.split(",");
+                if(parts.length < 3) return;
+
+                let DateAndTime = parts[0].split(" ");
+                let Date = DateAndTime[0].trim();
+                let Time = DateAndTime[1].trim();
+
+                let n1 = parts[1].trim();
+                let n2 = parts[2].trim();
+
+                if(!Date) return;
+                if(Date == DateOld){
+                    labels.push(Time);                    
+                }
+                else{
+                    labels.push(parts[0]); 
+                }
+                    num1.push(n1 === "" ? null : Number(n1));
+                    num2.push(n2 === "" ? null : Number(n2));
+                    DateOld = Date;
+            });
+                
+            buildChart(labels, num1, num2);
+        }
+
+        function buildChart(labels, n1, n2){
+            new Chart(document.getElementById("chart"), {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: "Min",
+                            data: n1,
+                            borderWidth: 2
+                        },
+                        {
+                            label: "Max",
+                            data: n2,
+                            borderWidth: 2
+                        }
+                    ]
+                }
+            });
+        }
+    </script>
+</head>
+
+<body bgcolor="LightGreen" onload="getData()">
+
+<h2>Welcome to App Dev.</h2>
+
+<canvas id="chart" width="600" height="300"></canvas>
+
+</body>
+</html>
